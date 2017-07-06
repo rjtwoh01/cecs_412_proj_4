@@ -19,25 +19,39 @@ static void adc_handler(ADC_t *adc, uint8_t ch_mask, adc_result_t result)
 	#endif
 	int32_t temperature;
 	char out_str[OUTPUT_STR_SIZE];
+	float voltage;
+	float last_voltage;
 	
 	/* Compute current temperature in Celsius, based on linearization
 	* of the temperature sensor adc data.
 	*/
-	
-	/*if (result > 697) {
-	temperature = (int8_t)((-0.0295 * result) + 40.5);
-	} if (result > 420) {
-	temperature = (int8_t)((-0.0474 * result) + 53.3);
-	} else {
-	temperature = (int8_t)((-0.0777 * result) + 65.1);
-	}*/
 
-	temperature = result;
-	last_temperature = temperature;
+	voltage = ((0.0157*result) + 0.0108); //calculated by the linear fit on excel
+	last_voltage = (uint8_t)voltage > 2 ? 0 : voltage;
+	//last_temperature = temperature;
+
+	//Before the shift, the result was the voltage value
+	//After the shift took place, we calculated the new voltage above.
+	//But we still use result for temperature
+	//So we're setting result = voltage again
+	//result = voltage;
 	
+	if (result > 697) {
+		temperature = (int8_t)((-0.0295 * result) + 40.5);
+		} if (result > 420) {
+		temperature = (int8_t)((-0.0474 * result) + 53.3);
+		} else {
+		temperature = (int8_t)((-0.0777 * result) + 65.1);
+	}
+
+	last_temperature = temperature;
+
 	// Write temperature to display
-	snprintf(out_str, OUTPUT_STR_SIZE, "Voltage: %4d mVDC", last_temperature);
+	snprintf(out_str, OUTPUT_STR_SIZE, "Temperature: %4d C", last_temperature);
 	gfx_mono_draw_string(out_str, 0, 0, &sysfont);
+	// Write voltage to display
+	snprintf(out_str, OUTPUT_STR_SIZE, "Voltage: %4d.%02d VDC", (uint8_t)last_voltage, (uint8_t)(last_voltage * 100)%100);
+	gfx_mono_draw_string(out_str, 0, 8, &sysfont);
 	
 	// Start next conversion.
 	adc_start_conversion(adc, ch_mask);
