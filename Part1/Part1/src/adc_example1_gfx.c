@@ -54,7 +54,6 @@ static void adc_handler(ADC_t *adc, uint8_t ch_mask, adc_result_t result)
 	gfx_mono_draw_string(out_str, 0, 8, &sysfont);
 	
 	//Insert new line
-	gfx_mono_draw_string(out_str, 0, 16, &sysfont); //maybe 8 to increment it, but I think its saying position 16 for the y coord
 	int dotsToDraw = ( int )( last_voltage *62.1359); //determines width of bar to draw
 	gfx_mono_draw_filled_rect ( dotsToDraw ,20,128- dotsToDraw ,12, GFX_PIXEL_CLR );
 	gfx_mono_draw_filled_rect (0,20, dotsToDraw ,12, GFX_PIXEL_SET ); //draws to rectangles
