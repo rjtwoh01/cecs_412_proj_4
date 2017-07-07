@@ -53,6 +53,18 @@ static void adc_handler(ADC_t *adc, uint8_t ch_mask, adc_result_t result)
 	snprintf(out_str, OUTPUT_STR_SIZE, "Voltage: %4d.%02d VDC", (uint8_t)last_voltage, (uint8_t)(last_voltage * 100)%100);
 	gfx_mono_draw_string(out_str, 0, 8, &sysfont);
 	
+	//Insert new line
+	gfx_mono_draw_string(out_str, 0, 16, &sysfont); //maybe 8 to increment it, but I think its saying position 16 for the y coord
+	int dotsToDraw = ( int )( last_voltage *62.1359); //determines width of bar to draw
+	gfx_mono_draw_filled_rect ( dotsToDraw ,20,128- dotsToDraw ,12, GFX_PIXEL_CLR );
+	gfx_mono_draw_filled_rect (0,20, dotsToDraw ,12, GFX_PIXEL_SET ); //draws to rectangles
+	//one “clear” and one “set” - lengths relative to
+	//voltage reading
+	if ( dotsToDraw == 128){ //flashes the bar if voltage is ADC max
+		gfx_mono_draw_filled_rect (0,20,128,12, GFX_PIXEL_CLR );
+		gfx_mono_draw_filled_rect (0,20,128,12, GFX_PIXEL_SET );
+	}
+
 	// Start next conversion.
 	adc_start_conversion(adc, ch_mask);
 }
